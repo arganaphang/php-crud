@@ -1,0 +1,31 @@
+services:
+  mariadb:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: contacts
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./database/data:/var/lib/mysql
+  web:
+    build: .
+    ports:
+      - "8000:80" # HTTP
+      - "8443:443" # HTTPS
+      - "8443:443/udp" # HTTP/3
+    depends_on:
+      - mariadb
+    volumes:
+      - ./application:/app/public
+      - caddy_data:/data
+      - caddy_config:/config
+    # comment the following line in production, it allows to have nice human-readable logs in dev
+    tty: true
+
+# Volumes needed for Caddy certificates and configuration
+volumes:
+  caddy_data:
+  caddy_config:
